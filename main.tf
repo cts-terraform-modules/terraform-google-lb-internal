@@ -27,26 +27,14 @@ data "google_compute_subnetwork" "network" {
   region  = var.region
 }
 
-resource "google_compute_forwarding_rule" "default" {
-  project               = var.project
-  name                  = var.name
-  region                = var.region
-  network               = data.google_compute_network.network.self_link
-  subnetwork            = data.google_compute_subnetwork.network.self_link
-  allow_global_access   = var.global_access
-  load_balancing_scheme = "INTERNAL"
-  backend_service       = google_compute_region_backend_service.default.self_link
-  ip_address            = var.ip_address
-  ip_protocol           = var.ip_protocol
-  ports                 = var.ports
-  all_ports             = var.all_ports
-  service_label         = var.service_label
+locals {
+  ports = chunklist(var.ports, 5)
 }
 
-resource "google_compute_forwarding_rule" "default_2" {
-  count                 = var.ports_2 != [] ? 1 : 0
+resource "google_compute_forwarding_rule" "default" {
+  count                 = length(local.ports)
   project               = var.project
-  name                  = "${var.name}-2"
+  name                  = "${var.name}-${count.index}"
   region                = var.region
   network               = data.google_compute_network.network.self_link
   subnetwork            = data.google_compute_subnetwork.network.self_link
@@ -55,7 +43,7 @@ resource "google_compute_forwarding_rule" "default_2" {
   backend_service       = google_compute_region_backend_service.default.self_link
   ip_address            = var.ip_address
   ip_protocol           = var.ip_protocol
-  ports                 = var.ports_2
+  ports                 = local.ports[count.index]
   all_ports             = var.all_ports
   service_label         = var.service_label
 }
@@ -118,13 +106,14 @@ resource "google_compute_health_check" "http" {
 }
 
 resource "google_compute_firewall" "default-ilb-fw" {
+  count                 = length(local.ports)
   project = var.network_project == "" ? var.project : var.network_project
-  name    = "${var.name}-ilb-fw"
+  name    = "${var.name}-ilb-fw-${count.index}"
   network = data.google_compute_network.network.name
 
   allow {
     protocol = lower(var.ip_protocol)
-    ports    = var.ports
+    ports    = local.ports[count.index]
   }
 
   source_ranges           = var.source_ip_ranges
