@@ -64,6 +64,12 @@ variable "ports" {
   type        = list(string)
 }
 
+variable "ports_2" {
+  description = "Additional 5 ports to make a second forwarding rule for overspill"
+  type        = list(string)
+  default     = []
+}
+
 variable "all_ports" {
   description = "Boolean for all_ports setting on forwarding rule."
   type        = bool
