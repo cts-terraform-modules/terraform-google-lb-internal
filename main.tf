@@ -54,7 +54,7 @@ resource "google_compute_region_backend_service" "default" {
   
   failover_policy {
     failover_ratio = var.failover_ratio
-    drop_traffic_if_unhealty = var.drop_traffic_if_unhealty
+    drop_traffic_if_unhealthy = var.drop_traffic_if_unhealthy
     disable_connection_drain_on_failover = var.disable_connection_drain_on_failover
   }
 
