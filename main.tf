@@ -38,7 +38,7 @@ resource "google_compute_forwarding_rule" "default" {
   backend_service       = google_compute_region_backend_service.default.self_link
   ip_address            = var.ip_address
   ip_protocol           = var.ip_protocol
-  ports                 = var.ports
+  ports                 = var.all_ports == true ? null : var.ports
   all_ports             = var.all_ports
   service_label         = var.service_label
 }
