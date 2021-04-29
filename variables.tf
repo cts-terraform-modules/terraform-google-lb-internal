@@ -54,6 +54,18 @@ variable "backends" {
   type        = list(object({ group = string, description = string }))
 }
 
+variable "create_backends" {
+  description = "Disable backend creation if already exists"
+  type        = bool
+  default     = true
+}
+
+variable "backend_service_sl" {
+  description = "backend service self_link. Cant be used in conjunction with backends and must set create_backends as false"
+  type        = string
+  default     = ""
+}
+
 variable "session_affinity" {
   description = "The session affinity for the backends example: NONE, CLIENT_IP. Default is `NONE`."
   default     = "NONE"

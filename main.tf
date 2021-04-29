@@ -35,7 +35,7 @@ resource "google_compute_forwarding_rule" "default" {
   subnetwork            = data.google_compute_subnetwork.network.self_link
   allow_global_access   = var.global_access
   load_balancing_scheme = "INTERNAL"
-  backend_service       = google_compute_region_backend_service.default.self_link
+  backend_service       = var.create_backends == false ? var.backend_service_sl : google_compute_region_backend_service.default[*].self_link
   ip_address            = var.ip_address
   ip_protocol           = var.ip_protocol
   ports                 = var.all_ports == true ? null : var.ports
@@ -44,6 +44,7 @@ resource "google_compute_forwarding_rule" "default" {
 }
 
 resource "google_compute_region_backend_service" "default" {
+  count                           = var.create_backends == true ? 1 : 0
   project                         = var.project
   name                            = var.health_check["type"] == "tcp" ? "${var.name}-with-tcp-hc" : "${var.name}-with-http-hc"
   region                          = var.region
